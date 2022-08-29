@@ -17,4 +17,4 @@
 data.db3
 go.mod
 go.sum
-
+*.exe
