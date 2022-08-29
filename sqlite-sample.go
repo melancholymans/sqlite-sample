@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/melancholymans/sqlite-sample/hello"
+
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var qry string = "select * from mydata where id = ?"
 
 type Mydata struct {
 	ID   int
@@ -25,17 +29,27 @@ func main() {
 		panic(err)
 	}
 	defer con.Close()
-	q := "select * from mydata"
-	rs, err := con.Query(q)
-	if err != nil {
-		panic(err)
-	}
-	for rs.Next() {
-		var md Mydata
-		err := rs.Scan(&md.ID, &md.Name, &md.Mail, &md.Age)
+	//q := "select * from mydata"
+	for true {
+		s := hello.Input("id")
+		if s == "" {
+			break
+		}
+		n, err := strconv.Atoi(s)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(md.Str())
+		rs, err := con.Query(qry, n)
+		if err != nil {
+			panic(err)
+		}
+		for rs.Next() {
+			var md Mydata
+			err := rs.Scan(&md.ID, &md.Name, &md.Mail, &md.Age)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(md.Str())
+		}
 	}
 }
