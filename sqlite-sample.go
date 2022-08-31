@@ -27,22 +27,37 @@ func main() {
 		panic(err)
 	}
 	defer con.Close()
-	for {
-		s := Input("find")
-		if s == "" {
-			break
-		}
-		rs, err := con.Query(qry, "%"+s+"%")
-		if err != nil {
-			panic(err)
-		}
-		for rs.Next() {
-			var md Mydata
-			err := rs.Scan(&md.ID, &md.Name, &md.Mail, &md.Age)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println(md.Str())
-		}
+	nm := Input("name")
+	ml := Input("mail")
+	age := Input("age")
+	ag, _ := strconv.Atoi(age)
+	qry := "insert into mydata (name,mail,age) values (?,?,?)"
+	con.Exec(qry, nm, ml, ag)
+	showRecord(con)
+}
+
+func showRecord(con *sql.DB) {
+	qry = "select * from mydata"
+	rs, _ := con.Query(qry)
+	for rs.Next() {
+		fmt.Println(mydatafmRws(rs).Str())
 	}
+}
+
+func mydatafmRws(rs *sql.Rows) *Mydata {
+	var md Mydata
+	err := rs.Scan(&md.ID, &md.Name, &md.Mail, &md.Age)
+	if err != nil {
+		panic(err)
+	}
+	return &md
+}
+
+func mydatafmRw(rs *sql.Row) *Mydata {
+	var md Mydata
+	err := rs.Scan(&md.ID, &md.Name, &md.Mail, &md.Age)
+	if err != nil {
+		panic(err)
+	}
+	return &md
 }
